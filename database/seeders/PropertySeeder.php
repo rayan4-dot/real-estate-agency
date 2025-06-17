@@ -36,7 +36,7 @@ class PropertySeeder extends Seeder
                 'user_id' => $faker->randomElement($userIds),
                 'category_id' => $faker->randomElement($categoryIds),
             ]);
-        }
         
+        }
     }
 }
