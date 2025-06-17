@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\CategoryController;
@@ -11,15 +12,40 @@ use App\Http\Controllers\BlogPostController;
 use App\Http\Controllers\ContactRequestController;
 use App\Http\Controllers\FavoritePropertyController;
 use App\Http\Controllers\PropertySubmissionController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\RegisteredUserController;
 
+// --- AUTH ENDPOINTS (Breeze/Sanctum) ---
+Route::post('/login', [AuthenticatedSessionController::class, 'store']);
+Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->middleware('auth:sanctum');
+Route::post('/register', [RegisteredUserController::class, 'store']);
+Route::get('/user', function (Request $request) {
+    return $request->user();
+})->middleware('auth:sanctum');
+
+// --- PROFILE ENDPOINTS ---
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit']);
+    Route::patch('/profile', [ProfileController::class, 'update']);
+    Route::delete('/profile', [ProfileController::class, 'destroy']);
+});
+
+// --- PUBLIC ENDPOINTS ---
+Route::get('properties', [PropertyController::class, 'index']);
+Route::get('properties/{property}', [PropertyController::class, 'show']);
+Route::get('blog-posts', [BlogPostController::class, 'index']);
+Route::get('blog-posts/{blog_post}', [BlogPostController::class, 'show']);
+
+// --- PROTECTED API RESOURCES ---
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('users', UserController::class);
     Route::apiResource('roles', RoleController::class);
     Route::apiResource('categories', CategoryController::class);
-    Route::apiResource('properties', PropertyController::class);
+    Route::apiResource('properties', PropertyController::class)->except(['index', 'show']);
     Route::apiResource('photos', PhotoController::class);
     Route::apiResource('appointments', AppointmentController::class);
-    Route::apiResource('blog-posts', BlogPostController::class);
+    Route::apiResource('blog-posts', BlogPostController::class)->except(['index', 'show']);
     Route::apiResource('contact-requests', ContactRequestController::class);
     Route::apiResource('property-submissions', PropertySubmissionController::class);
 
