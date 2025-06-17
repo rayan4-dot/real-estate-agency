@@ -4,9 +4,21 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CategoryController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            $user = Auth::user();
+            if (!$user || !$user->hasAnyRole(['admin', 'agent'])) {
+                return response()->json(['message' => 'Forbidden'], 403);
+            }
+            return $next($request);
+        });
+    }
+
     public function index()
     {
         return response()->json(Category::all());

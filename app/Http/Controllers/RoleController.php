@@ -4,9 +4,21 @@ namespace App\Http\Controllers;
 
 use App\Models\Role;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class RoleController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            $user = Auth::user();
+            if (!$user || !$user->hasRole('admin')) {
+                return response()->json(['message' => 'Forbidden'], 403);
+            }
+            return $next($request);
+        });
+    }
+
     public function index()
     {
         return response()->json(Role::all());

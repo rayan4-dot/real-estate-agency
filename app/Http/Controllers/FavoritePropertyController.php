@@ -4,9 +4,24 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\FavoriteProperty;
+use Illuminate\Support\Facades\Auth;
 
 class FavoritePropertyController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            $user = Auth::user();
+            $action = $request->route()->getActionMethod();
+            if ($action === 'index') {
+                if (!$user || !$user->hasAnyRole(['admin', 'agent'])) {
+                    return response()->json(['message' => 'Forbidden'], 403);
+                }
+            }
+            return $next($request);
+        });
+    }
+
     /**
      * Display a listing of the resource.
      */

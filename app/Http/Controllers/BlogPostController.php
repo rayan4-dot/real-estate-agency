@@ -4,9 +4,24 @@ namespace App\Http\Controllers;
 
 use App\Models\BlogPost;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class BlogPostController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            $user = Auth::user();
+            $action = $request->route()->getActionMethod();
+            if (in_array($action, ['store', 'update', 'destroy'])) {
+                if (!$user || !$user->hasAnyRole(['admin', 'agent'])) {
+                    return response()->json(['message' => 'Forbidden'], 403);
+                }
+            }
+            return $next($request);
+        });
+    }
+
     /**
      * Display a listing of the resource.
      */

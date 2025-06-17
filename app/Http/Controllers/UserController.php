@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
+use Spatie\Permission\Models\Role;
 
 class UserController extends BaseController
 {
@@ -14,7 +15,7 @@ class UserController extends BaseController
     {
         $this->middleware(function ($request, $next) {
             $user = Auth::user();
-            if (!$user || !in_array(optional($user->role)->name, ['admin', 'agent'])) {
+            if (!$user || !$user->hasAnyRole(['admin', 'agent'])) {
                 return response()->json(['message' => 'Forbidden'], 403);
             }
             return $next($request);
