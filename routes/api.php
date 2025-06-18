@@ -39,20 +39,34 @@ Route::get('blog-posts/{blog_post}', [BlogPostController::class, 'show']);
 
 // --- PROTECTED API RESOURCES ---
 Route::middleware('auth:sanctum')->group(function () {
-    Route::apiResource('users', UserController::class);
-    Route::apiResource('roles', RoleController::class);
-    Route::apiResource('categories', CategoryController::class);
-    Route::apiResource('properties', PropertyController::class)->except(['index', 'show']);
-    Route::apiResource('photos', PhotoController::class);
-    Route::apiResource('appointments', AppointmentController::class);
-    Route::apiResource('blog-posts', BlogPostController::class)->except(['index', 'show']);
-    Route::apiResource('contact-requests', ContactRequestController::class);
-    Route::apiResource('property-submissions', PropertySubmissionController::class);
+    // Admin-only
+    Route::middleware('role:admin')->group(function () {
+        Route::apiResource('users', UserController::class);
+        Route::apiResource('roles', RoleController::class);
+        Route::apiResource('categories', CategoryController::class);
+    });
 
-    // FavoriteProperty: custom routes for composite keys
-    Route::get('favorite-properties', [FavoritePropertyController::class, 'index']);
-    Route::post('favorite-properties', [FavoritePropertyController::class, 'store']);
-    Route::get('favorite-properties/{user_id}/{property_id}', [FavoritePropertyController::class, 'show']);
-    Route::put('favorite-properties/{user_id}/{property_id}', [FavoritePropertyController::class, 'update']);
-    Route::delete('favorite-properties/{user_id}/{property_id}', [FavoritePropertyController::class, 'destroy']);
+    // Agent-only
+    Route::middleware('role:agent|admin')->group(function () {
+        Route::apiResource('properties', PropertyController::class)->except(['index', 'show']);
+        Route::apiResource('blog-posts', BlogPostController::class)->except(['index', 'show']);
+    });
+
+    // Propriétaire-only
+    Route::middleware('role:proprietaire|admin')->group(function () {
+        Route::apiResource('property-submissions', PropertySubmissionController::class);
+    });
+
+    // Client-only
+    Route::middleware('role:client|admin')->group(function () {
+        Route::apiResource('appointments', AppointmentController::class);
+        Route::apiResource('contact-requests', ContactRequestController::class);
+        // FavoriteProperty: custom routes for composite keys
+        Route::get('favorite-properties', [FavoritePropertyController::class, 'index']);
+        Route::post('favorite-properties', [FavoritePropertyController::class, 'store']);
+        Route::get('favorite-properties/{user_id}/{property_id}', [FavoritePropertyController::class, 'show']);
+        Route::put('favorite-properties/{user_id}/{property_id}', [FavoritePropertyController::class, 'update']);
+        Route::delete('favorite-properties/{user_id}/{property_id}', [FavoritePropertyController::class, 'destroy']);
+    });
 }); 
+ 

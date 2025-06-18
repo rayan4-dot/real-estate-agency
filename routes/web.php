@@ -5,13 +5,34 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+// Home
 Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
+    return Inertia::render('Home');
+});
+
+// Properties
+Route::get('/properties', function () {
+    return Inertia::render('Properties');
+});
+
+// Favorites
+Route::get('/favorites', function () {
+    return Inertia::render('Favorites');
+});
+
+// Blog
+Route::get('/blog-posts', function () {
+    return Inertia::render('BlogPosts');
+});
+
+// Profile
+Route::get('/profile', function () {
+    return Inertia::render('Profile');
+});
+
+// Property Details (dynamic, expects id as param)
+Route::get('/properties/{id}', function ($id) {
+    return Inertia::render('PropertyDetails', ['id' => $id]);
 });
 
 Route::get('/dashboard', function () {
