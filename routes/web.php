@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
 
 // Home
 Route::get('/', function () {
@@ -38,6 +39,51 @@ Route::get('/properties/{id}', function ($id) {
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+// Simple login route for testing
+Route::get('/login-admin', function () {
+    $user = \App\Models\User::where('email', 'admin@example.com')->first();
+    if ($user) {
+        Auth::login($user);
+        return redirect('/admin');
+    }
+    return 'Admin user not found';
+});
+
+// Debug routes for testing authentication
+Route::get('/test-auth', function () {
+    if (auth()->check()) {
+        $user = auth()->user();
+        return response()->json([
+            'authenticated' => true,
+            'user_id' => $user->id,
+            'email' => $user->email,
+            'roles' => $user->getRoleNames(),
+            'has_admin_role' => $user->hasRole('admin'),
+            'guard' => auth()->getDefaultDriver()
+        ]);
+    } else {
+        return response()->json(['authenticated' => false]);
+    }
+});
+
+Route::get('/test-role', function () {
+    return response()->json(['message' => 'Role middleware passed!']);
+})->middleware(['auth', 'role:admin']);
+
+// Admin Dashboard - Simplified
+Route::get('/admin', function () {
+    if (!auth()->check()) {
+        return 'Not authenticated';
+    }
+    
+    $user = auth()->user();
+    if (!$user->hasRole('admin')) {
+        return 'Not admin role. User roles: ' . implode(', ', $user->getRoleNames()->toArray());
+    }
+    
+    return Inertia::render('AdminDashboard');
+})->middleware(['auth', 'role:admin']);
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

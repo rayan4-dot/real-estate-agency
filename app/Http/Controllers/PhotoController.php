@@ -33,10 +33,17 @@ class PhotoController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'url' => 'required|string|max:255',
+            'file' => 'required|image|max:5120', // max 5MB
             'property_id' => 'required|exists:properties,id',
         ]);
-        $photo = Photo::create($validated);
+
+        $path = $request->file('file')->store('photos', 'public');
+        $url = asset('storage/' . $path);
+
+        $photo = Photo::create([
+            'url' => $url,
+            'property_id' => $validated['property_id'],
+        ]);
         return response()->json($photo, 201);
     }
 

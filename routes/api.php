@@ -15,6 +15,7 @@ use App\Http\Controllers\PropertySubmissionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\StatsController;
 
 // --- AUTH ENDPOINTS (Breeze/Sanctum) ---
 Route::post('/login', [AuthenticatedSessionController::class, 'store']);
@@ -68,5 +69,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('favorite-properties/{user_id}/{property_id}', [FavoritePropertyController::class, 'update']);
         Route::delete('favorite-properties/{user_id}/{property_id}', [FavoritePropertyController::class, 'destroy']);
     });
-}); 
+});
+
+Route::middleware(['auth:sanctum', 'role:admin'])->get('/stats', [StatsController::class, 'index']); 
  
