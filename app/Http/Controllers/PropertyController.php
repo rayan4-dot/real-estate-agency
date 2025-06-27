@@ -38,6 +38,10 @@ class PropertyController extends Controller
 
     public function store(Request $request)
     {
+        // Debug: Log what's being received
+        \Log::info('Property store request data:', $request->all());
+        \Log::info('Files received:', $request->allFiles());
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -52,7 +56,6 @@ class PropertyController extends Controller
             'published_at' => 'nullable|date',
             'user_id' => 'nullable|exists:users,id',
             'category_id' => 'nullable|exists:categories,id',
-            'image' => 'nullable|image|max:5120', // max 5MB
         ]);
 
         // Set the user_id to the current authenticated user
@@ -60,15 +63,17 @@ class PropertyController extends Controller
 
         $property = Property::create($validated);
 
-        // Handle image upload
-        if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('properties', 'public');
-            $url = asset('storage/' . $path);
-            
-            Photo::create([
-                'url' => $url,
-                'property_id' => $property->id,
-            ]);
+        // Handle multiple image uploads
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $path = $image->store('properties', 'public');
+                $url = asset('storage/' . $path);
+                
+                Photo::create([
+                    'url' => $url,
+                    'property_id' => $property->id,
+                ]);
+            }
         }
 
         return response()->json($property->load(['photos', 'user']), 201);

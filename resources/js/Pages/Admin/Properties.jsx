@@ -9,6 +9,11 @@ export default function AdminProperties() {
     const [form, setForm] = useState({
         id: null,
         title: '',
+        description: '',
+        surface: '',
+        rooms: '',
+        bedrooms: '',
+        address: '',
         city: '',
         price: '',
         status: 'available',
@@ -16,7 +21,7 @@ export default function AdminProperties() {
     });
     const [formError, setFormError] = useState(null);
     const [isEdit, setIsEdit] = useState(false);
-    const [image, setImage] = useState(null);
+    const [images, setImages] = useState([]);
 
     const fetchProperties = () => {
         setLoading(true);
@@ -41,6 +46,11 @@ export default function AdminProperties() {
         setForm({
             id: property.id,
             title: property.title,
+            description: property.description,
+            surface: property.surface,
+            rooms: property.rooms,
+            bedrooms: property.bedrooms,
+            address: property.address,
             city: property.city,
             price: property.price,
             status: property.status,
@@ -52,7 +62,7 @@ export default function AdminProperties() {
     };
 
     const handleAdd = () => {
-        setForm({ id: null, title: '', city: '', price: '', status: 'available', type: 'house' });
+        setForm({ id: null, title: '', description: '', surface: '', rooms: '', bedrooms: '', address: '', city: '', price: '', status: 'available', type: 'house' });
         setIsEdit(false);
         setShowForm(true);
         setFormError(null);
@@ -63,8 +73,8 @@ export default function AdminProperties() {
     };
 
     const handleImageChange = (e) => {
-        const file = e.target.files[0];
-        setImage(file);
+        const files = Array.from(e.target.files);
+        setImages(files);
     };
 
     const handleFormSubmit = (e) => {
@@ -72,13 +82,18 @@ export default function AdminProperties() {
         setFormError(null);
         const formData = new FormData();
         formData.append('title', form.title);
+        formData.append('description', form.description);
+        formData.append('surface', form.surface);
+        formData.append('rooms', form.rooms);
+        formData.append('bedrooms', form.bedrooms);
+        formData.append('address', form.address);
         formData.append('city', form.city);
         formData.append('price', form.price);
         formData.append('status', form.status);
         formData.append('type', form.type);
-        if (image) {
-            formData.append('image', image);
-        }
+        images.forEach((img, idx) => {
+            formData.append('images[]', img);
+        });
         if (isEdit) {
             axios.post(`/api/properties/${form.id}?_method=PUT`, formData, {
                 withCredentials: true,
@@ -115,6 +130,28 @@ export default function AdminProperties() {
                         <input name="title" value={form.title} onChange={handleFormChange} className="w-full border rounded px-3 py-2" required />
                     </div>
                     <div className="mb-2">
+                        <label className="block mb-1">Description</label>
+                        <textarea name="description" value={form.description} onChange={handleFormChange} rows={3} className="w-full border rounded px-3 py-2"></textarea>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 mb-2">
+                        <div>
+                            <label className="block mb-1">Surface (m²)</label>
+                            <input name="surface" type="number" value={form.surface} onChange={handleFormChange} className="w-full border rounded px-3 py-2" />
+                        </div>
+                        <div>
+                            <label className="block mb-1">Rooms</label>
+                            <input name="rooms" type="number" value={form.rooms} onChange={handleFormChange} className="w-full border rounded px-3 py-2" />
+                        </div>
+                    </div>
+                    <div className="mb-2">
+                        <label className="block mb-1">Bedrooms</label>
+                        <input name="bedrooms" type="number" value={form.bedrooms} onChange={handleFormChange} className="w-full border rounded px-3 py-2" />
+                    </div>
+                    <div className="mb-2">
+                        <label className="block mb-1">Address</label>
+                        <input name="address" value={form.address} onChange={handleFormChange} className="w-full border rounded px-3 py-2" />
+                    </div>
+                    <div className="mb-2">
                         <label className="block mb-1">City</label>
                         <input name="city" value={form.city} onChange={handleFormChange} className="w-full border rounded px-3 py-2" />
                     </div>
@@ -140,15 +177,19 @@ export default function AdminProperties() {
                         </select>
                     </div>
                     <div className="mb-2">
-                        <label className="block mb-1">Image</label>
-                        <input type="file" accept="image/*" onChange={handleImageChange} className="w-full border rounded px-3 py-2" />
-                        {image && (
-                            <div className="mt-2">
-                                <img
-                                    src={URL.createObjectURL(image)}
-                                    alt="preview"
-                                    className="w-32 h-32 object-cover border rounded"
-                                />
+                        <label className="block mb-1">Images</label>
+                        <input type="file" multiple accept="image/*" onChange={handleImageChange} className="w-full border rounded px-3 py-2" />
+                        {images.length > 0 && (
+                            <div className="flex gap-2 mt-2 flex-wrap">
+                                {images.map((img, idx) => (
+                                    <div key={idx} className="relative">
+                                        <img
+                                            src={URL.createObjectURL(img)}
+                                            alt={`preview-${idx}`}
+                                            className="w-20 h-20 object-cover border rounded"
+                                        />
+                                    </div>
+                                ))}
                             </div>
                         )}
                     </div>
