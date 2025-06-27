@@ -12,7 +12,14 @@ createInertiaApp({
     resolve: name => {
         const pages = import.meta.glob('./Pages/**/*.jsx', { eager: true });
         let page = pages[`./Pages/${name}.jsx`];
-        page.default.layout = page.default.layout || ((page) => <Layout>{page}</Layout>);
+        
+        // Don't apply Layout to admin pages - they have their own AdminLayout
+        const isAdminPage = name.startsWith('Admin') || name.startsWith('Admin/');
+        
+        if (!isAdminPage) {
+            page.default.layout = page.default.layout || ((page) => <Layout>{page}</Layout>);
+        }
+        
         return page;
     },
     setup({ el, App, props }) {

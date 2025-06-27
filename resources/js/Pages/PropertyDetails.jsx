@@ -181,7 +181,7 @@ export default function PropertyDetails() {
                         {property.category && (
                             <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm font-semibold">{property.category.name}</span>
                         )}
-                    </div>
+            </div>
                     
                     <h1 className="text-4xl font-extrabold text-indigo-800 mb-2 tracking-tight">{property.title}</h1>
                     
@@ -190,13 +190,13 @@ export default function PropertyDetails() {
                         <span className="text-gray-500"><svg className="inline w-5 h-5 mr-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16" /></svg>{property.surface} m²</span>
                         <span className="text-gray-500"><svg className="inline w-5 h-5 mr-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M20 13V7a2 2 0 00-2-2H6a2 2 0 00-2 2v6" /></svg>{property.rooms} rooms</span>
                         <span className="text-gray-500"><svg className="inline w-5 h-5 mr-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8 17l4 4 4-4m0-5a4 4 0 11-8 0 4 4 0 018 0z" /></svg>{property.bedrooms} bedrooms</span>
-                    </div>
+            </div>
                     
                     <hr className="my-6 border-indigo-100" />
                     
                     <p className="text-lg text-gray-700 mb-8 leading-relaxed">{property.description}</p>
                     
-                    <div className="flex gap-4 mt-8">
+            <div className="flex gap-4 mt-8">
                         {property.status === 'available' && (
                             <button onClick={() => setShowAppointmentModal(true)} className="px-6 py-3 bg-indigo-600 text-white rounded-full font-semibold hover:bg-indigo-700 transition">Book Appointment</button>
                         )}
@@ -355,7 +355,7 @@ export default function PropertyDetails() {
                                 </button>
                             </div>
                         </form>
-                    </motion.div>
+        </motion.div>
                 </div>
             )}
         </div>

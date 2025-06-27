@@ -126,8 +126,8 @@ export default function Properties() {
         const hasPriceErrors = filterErrors.min || filterErrors.max;
         
         return (
-            (!filters.city || p.city?.toLowerCase().includes(filters.city.toLowerCase())) &&
-            (!filters.type || p.type === filters.type) &&
+        (!filters.city || p.city?.toLowerCase().includes(filters.city.toLowerCase())) &&
+        (!filters.type || p.type === filters.type) &&
             (!hasPriceErrors && !filters.min || p.price >= Number(filters.min)) &&
             (!hasPriceErrors && !filters.max || p.price <= Number(filters.max))
         );
@@ -137,7 +137,7 @@ export default function Properties() {
         <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-white py-10 px-4">
             <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }} className="max-w-6xl mx-auto">
                 <h1 className="text-4xl font-bold mb-8 text-indigo-800 text-center">All Properties</h1>
-                <div className="flex flex-wrap gap-4 mb-8 justify-center">
+            <div className="flex flex-wrap gap-4 mb-8 justify-center">
                     <input 
                         type="text" 
                         placeholder="City" 
@@ -150,12 +150,12 @@ export default function Properties() {
                         value={filters.type} 
                         onChange={e => handleFilterChange('type', e.target.value)}
                     >
-                        <option value="">All Types</option>
-                        <option value="house">House</option>
-                        <option value="apartment">Apartment</option>
+                    <option value="">All Types</option>
+                    <option value="house">House</option>
+                    <option value="apartment">Apartment</option>
                         <option value="land">Land</option>
                         <option value="commercial">Commercial</option>
-                    </select>
+                </select>
                     <div className="relative">
                         <input 
                             type="number" 
@@ -186,31 +186,31 @@ export default function Properties() {
                             </div>
                         )}
                     </div>
+            </div>
+            {loading ? (
+                <div className="flex justify-center items-center h-40">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
                 </div>
-                {loading ? (
-                    <div className="flex justify-center items-center h-40">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-                    </div>
-                ) : error ? (
-                    <div className="text-center text-red-500 py-16">{error}</div>
-                ) : filtered.length > 0 ? (
+            ) : error ? (
+                <div className="text-center text-red-500 py-16">{error}</div>
+            ) : filtered.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {filtered.map((property, idx) => (
-                            <motion.div
-                                key={property.id}
+                    {filtered.map((property, idx) => (
+                        <motion.div
+                            key={property.id}
                                 className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
-                                initial={{ opacity: 0, y: 40 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: idx * 0.1, duration: 0.6 }}
-                            >
+                            initial={{ opacity: 0, y: 40 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: idx * 0.1, duration: 0.6 }}
+                        >
                                 <div className="relative">
                                     <Link href={`/properties/${property.id}`}>
-                                        <img
+                            <img
                                             src={property.photos && property.photos.length > 0 ? property.photos[0].url : `https://source.unsplash.com/600x400/?house,home,real-estate&sig=${property.id}`}
-                                            alt={property.title}
-                                            className="h-48 w-full object-cover"
-                                        />
+                                alt={property.title}
+                                className="h-48 w-full object-cover"
+                            />
                                     </Link>
                                     <button
                                         onClick={(e) => handleFavoriteToggle(property.id, e)}
@@ -248,15 +248,15 @@ export default function Properties() {
                                             <span className="inline-block px-4 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition">
                                                 View Details
                                             </span>
-                                        </div>
-                                    </div>
+                                </div>
+                            </div>
                                 </Link>
-                            </motion.div>
-                        ))}
-                    </div>
-                ) : (
-                    <div className="text-center text-gray-500 py-16">No properties found.</div>
-                )}
+                        </motion.div>
+                    ))}
+                </div>
+            ) : (
+                <div className="text-center text-gray-500 py-16">No properties found.</div>
+            )}
             </motion.div>
         </div>
     );

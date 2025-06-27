@@ -38,6 +38,7 @@ class BlogPostController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
+            'excerpt' => 'nullable|string|max:500',
             'created_at' => 'nullable|date',
             'user_id' => 'required|exists:users,id',
         ]);
@@ -63,6 +64,7 @@ class BlogPostController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
+            'excerpt' => 'nullable|string|max:500',
             'created_at' => 'nullable|date',
             'user_id' => 'required|exists:users,id',
         ]);

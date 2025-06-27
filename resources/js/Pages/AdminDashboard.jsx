@@ -1,19 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { usePage, Link, router } from '@inertiajs/react';
+import { usePage, router } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import axios from 'axios';
-
-const ADMIN_LINKS = [
-    { name: 'Users', href: '/admin/users' },
-    { name: 'Properties', href: '/admin/properties' },
-    { name: 'Categories', href: '/admin/categories' },
-    { name: 'Photos', href: '/admin/photos' },
-    { name: 'Blog Posts', href: '/admin/blog-posts' },
-    { name: 'Appointments', href: '/admin/appointments' },
-    { name: 'Contact Requests', href: '/admin/contact-requests' },
-    { name: 'Property Submissions', href: '/admin/property-submissions' },
-    { name: 'Roles', href: '/admin/roles' },
-];
+import AdminLayout from '../Components/AdminLayout';
 
 export default function AdminDashboard() {
     const { auth } = usePage().props;
@@ -55,60 +44,54 @@ export default function AdminDashboard() {
         }
     }, [isAdmin]);
 
-    if (!user || !isAdmin) {
-        return (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-32">
-                <h2 className="text-3xl font-bold mb-4 text-red-600">Forbidden</h2>
-                <p className="text-gray-600">You do not have permission to access the admin dashboard.</p>
-                <Link href="/" className="mt-8 inline-block px-6 py-3 bg-indigo-600 text-white rounded-full font-semibold hover:bg-indigo-700 transition">Go Home</Link>
-            </motion.div>
-        );
-    }
-
     return (
-        <div className="flex min-h-[80vh]">
-            {/* Sidebar */}
-            <aside className="w-64 bg-indigo-800 text-white flex flex-col py-8 px-4 sticky top-0 min-h-screen shadow-xl">
-                <div className="text-2xl font-extrabold mb-10 text-center tracking-wide">Admin Panel</div>
-                <nav className="flex flex-col gap-4">
-                    {ADMIN_LINKS.map(link => (
-                        <Link
-                            key={link.href}
-                            href={link.href}
-                            className="px-4 py-2 rounded hover:bg-indigo-700 transition text-lg font-medium"
-                        >
-                            {link.name}
-                        </Link>
-                    ))}
-                </nav>
-            </aside>
-            {/* Main Content */}
-            <main className="flex-1 p-10">
-                <motion.h1 initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }} className="text-4xl font-bold text-indigo-700 mb-8 text-center">Admin Dashboard</motion.h1>
-                {loading ? (
-                    <div className="flex justify-center items-center h-40">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-                    </div>
-                ) : error ? (
-                    <div className="text-center text-red-500 py-16">{error}</div>
-                ) : (
+        <AdminLayout 
+            title="Admin Dashboard" 
+            subtitle="Welcome to your admin control panel"
+        >
+            {loading ? (
+                <div className="flex justify-center items-center h-40">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+                </div>
+            ) : error ? (
+                <div className="text-center text-red-500 py-16">{error}</div>
+            ) : (
+                <>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 mb-12">
-                        <div className="bg-indigo-50 rounded-lg p-6 text-center">
+                        <motion.div 
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.1 }}
+                            className="bg-white rounded-xl shadow-lg p-6 text-center border border-gray-200"
+                        >
                             <div className="text-3xl font-bold text-indigo-700 mb-2">{stats.users}</div>
                             <div className="text-gray-600">Users</div>
-                        </div>
-                        <div className="bg-indigo-50 rounded-lg p-6 text-center">
+                        </motion.div>
+                        <motion.div 
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2 }}
+                            className="bg-white rounded-xl shadow-lg p-6 text-center border border-gray-200"
+                        >
                             <div className="text-3xl font-bold text-indigo-700 mb-2">{stats.properties}</div>
                             <div className="text-gray-600">Properties</div>
-                        </div>
-                        <div className="bg-indigo-50 rounded-lg p-6 text-center">
+                        </motion.div>
+                        <motion.div 
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.3 }}
+                            className="bg-white rounded-xl shadow-lg p-6 text-center border border-gray-200"
+                        >
                             <div className="text-3xl font-bold text-indigo-700 mb-2">{stats.blogPosts}</div>
                             <div className="text-gray-600">Blog Posts</div>
-                        </div>
+                        </motion.div>
                     </div>
-                )}
-                <div className="text-center text-gray-400 mt-12">Welcome, admin! Use the sidebar to manage users, properties, blog posts, and more.</div>
-            </main>
-        </div>
+                    <div className="text-center text-gray-400 mt-12">
+                        <p className="text-lg">Welcome, {user?.name || 'Admin'}!</p>
+                        <p className="text-sm mt-2">Use the sidebar to manage users, properties, blog posts, and more.</p>
+                    </div>
+                </>
+            )}
+        </AdminLayout>
     );
 } 

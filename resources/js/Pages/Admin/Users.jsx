@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import AdminLayout from '../../Components/AdminLayout';
 
 export default function AdminUsers() {
     const [users, setUsers] = useState([]);
@@ -92,73 +93,134 @@ export default function AdminUsers() {
     };
 
     return (
-        <div className="max-w-7xl mx-auto py-10 px-4">
-            <h1 className="text-3xl font-bold mb-8 text-indigo-800">Manage Users</h1>
-            <button onClick={handleAdd} className="mb-6 px-6 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">Add User</button>
+        <AdminLayout 
+            title="User Management" 
+            subtitle="Create and manage system users"
+        >
+            <div className="flex justify-end mb-8">
+                <button 
+                    onClick={handleAdd} 
+                    className="px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition flex items-center gap-2 shadow-lg"
+                >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Add User
+                </button>
+            </div>
+
             {showForm && (
-                <form onSubmit={handleFormSubmit} className="mb-8 bg-white p-6 rounded shadow max-w-xl">
-                    <h2 className="text-xl font-semibold mb-4">{isEdit ? 'Edit' : 'Add'} User</h2>
-                    {formError && <div className="text-red-500 mb-2">{formError}</div>}
-                    <div className="mb-2">
-                        <label className="block mb-1">Name</label>
-                        <input name="name" value={form.name} onChange={handleFormChange} className="w-full border rounded px-3 py-2" required />
-                    </div>
-                    <div className="mb-2">
-                        <label className="block mb-1">Email</label>
-                        <input name="email" type="email" value={form.email} onChange={handleFormChange} className="w-full border rounded px-3 py-2" required />
-                    </div>
-                    <div className="mb-2">
-                        <label className="block mb-1">Password {isEdit && <span className="text-gray-400">(leave blank to keep current)</span>}</label>
-                        <input name="password" type="password" value={form.password} onChange={handleFormChange} className="w-full border rounded px-3 py-2" />
-                    </div>
-                    <div className="mb-2">
-                        <label className="block mb-1">Role</label>
-                        <select name="role_id" value={form.role_id} onChange={handleFormChange} className="w-full border rounded px-3 py-2">
-                            <option value="">Select role</option>
-                            {roles.map(role => (
-                                <option key={role.id} value={role.id}>{role.name}</option>
-                            ))}
-                        </select>
-                    </div>
-                    <div className="flex gap-4 mt-4">
-                        <button type="submit" className="px-6 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">{isEdit ? 'Update' : 'Add'}</button>
-                        <button type="button" onClick={() => setShowForm(false)} className="px-6 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400">Cancel</button>
-                    </div>
-                </form>
-            )}
-            {loading ? (
-                <div>Loading...</div>
-            ) : error ? (
-                <div className="text-red-500">{error}</div>
-            ) : (
-                <div className="overflow-x-auto">
-                    <table className="min-w-full bg-white border border-gray-200">
-                        <thead>
-                            <tr>
-                                <th className="px-4 py-2 border">ID</th>
-                                <th className="px-4 py-2 border">Name</th>
-                                <th className="px-4 py-2 border">Email</th>
-                                <th className="px-4 py-2 border">Role</th>
-                                <th className="px-4 py-2 border">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {users.map(user => (
-                                <tr key={user.id}>
-                                    <td className="px-4 py-2 border">{user.id}</td>
-                                    <td className="px-4 py-2 border">{user.name}</td>
-                                    <td className="px-4 py-2 border">{user.email}</td>
-                                    <td className="px-4 py-2 border">{user.role_id || ''}</td>
-                                    <td className="px-4 py-2 border">
-                                        <button onClick={() => handleEdit(user)} className="text-blue-600 hover:underline mr-2">Edit</button>
-                                        <button onClick={() => handleDelete(user.id)} className="text-red-600 hover:underline">Delete</button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                <div className="mb-8 bg-white rounded-xl shadow-lg p-8 border border-gray-200">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-6">{isEdit ? 'Edit' : 'Add'} User</h2>
+                    {formError && <div className="text-red-500 mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">{formError}</div>}
+                    <form onSubmit={handleFormSubmit} className="space-y-6">
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Name *</label>
+                            <input 
+                                name="name" 
+                                value={form.name} 
+                                onChange={handleFormChange} 
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" 
+                                required 
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Email *</label>
+                            <input 
+                                name="email" 
+                                type="email" 
+                                value={form.email} 
+                                onChange={handleFormChange} 
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" 
+                                required 
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                Password {isEdit && <span className="text-gray-400">(leave blank to keep current)</span>}
+                            </label>
+                            <input 
+                                name="password" 
+                                type="password" 
+                                value={form.password} 
+                                onChange={handleFormChange} 
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" 
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Role</label>
+                            <select 
+                                name="role_id" 
+                                value={form.role_id} 
+                                onChange={handleFormChange} 
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                            >
+                                <option value="">Select role</option>
+                                {roles.map(role => (
+                                    <option key={role.id} value={role.id}>{role.name}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="flex gap-4 pt-4">
+                            <button type="submit" className="px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition">{isEdit ? 'Update' : 'Add'}</button>
+                            <button type="button" onClick={() => setShowForm(false)} className="px-6 py-3 bg-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-400 transition">Cancel</button>
+                        </div>
+                    </form>
                 </div>
             )}
-        </div>
+
+            {loading ? (
+                <div className="flex justify-center items-center h-40">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+                </div>
+            ) : error ? (
+                <div className="text-center text-red-500 py-16 bg-red-50 rounded-lg">{error}</div>
+            ) : (
+                <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+                    <div className="px-6 py-4 border-b border-gray-200">
+                        <h3 className="text-lg font-semibold text-gray-900">All Users</h3>
+                    </div>
+                    <div className="overflow-x-auto">
+                        <table className="min-w-full">
+                            <thead className="bg-gray-50">
+                                <tr>
+                                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">ID</th>
+                                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Name</th>
+                                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Email</th>
+                                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Role</th>
+                                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-200">
+                                {users.map(user => (
+                                    <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+                                        <td className="px-6 py-4 text-sm text-gray-900 font-medium">{user.id}</td>
+                                        <td className="px-6 py-4 text-sm font-semibold text-gray-900">{user.name}</td>
+                                        <td className="px-6 py-4 text-sm text-gray-500">{user.email}</td>
+                                        <td className="px-6 py-4 text-sm text-gray-500">{user.role_id || 'No role'}</td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex gap-2">
+                                                <button 
+                                                    onClick={() => handleEdit(user)} 
+                                                    className="px-3 py-1 bg-blue-100 text-blue-700 rounded-md text-sm font-medium hover:bg-blue-200 transition"
+                                                >
+                                                    Edit
+                                                </button>
+                                                <button 
+                                                    onClick={() => handleDelete(user.id)} 
+                                                    className="px-3 py-1 bg-red-100 text-red-700 rounded-md text-sm font-medium hover:bg-red-200 transition"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
+        </AdminLayout>
     );
 } 
