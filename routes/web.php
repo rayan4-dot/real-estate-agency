@@ -85,6 +85,34 @@ Route::get('/admin', function () {
     return Inertia::render('AdminDashboard');
 })->middleware(['auth', 'role:admin']);
 
+Route::get('/admin/properties', function () {
+    return Inertia::render('Admin/Properties');
+})->middleware(['auth', 'role:admin']);
+
+Route::get('/admin/users', function () {
+    return Inertia::render('Admin/Users');
+})->middleware(['auth', 'role:admin']);
+
+Route::get('/admin/roles', function () {
+    return Inertia::render('Admin/Roles');
+})->middleware(['auth', 'role:admin']);
+
+Route::get('/admin/blog-posts', function () {
+    return Inertia::render('Admin/BlogPosts');
+})->middleware(['auth', 'role:admin']);
+
+Route::get('/admin/appointments', function () {
+    return Inertia::render('Admin/Appointments');
+})->middleware(['auth', 'role:admin']);
+
+Route::get('/admin/property-submissions', function () {
+    return Inertia::render('Admin/PropertySubmissions');
+})->middleware(['auth', 'role:admin']);
+
+Route::get('/admin/photos', function () {
+    return Inertia::render('Admin/Photos');
+})->middleware(['auth', 'role:admin']);
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

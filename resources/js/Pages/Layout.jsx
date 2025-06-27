@@ -16,7 +16,7 @@ export default function Layout({ children }) {
                 <nav className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
                     <Link href="/" className="flex items-center gap-2 text-2xl font-extrabold text-indigo-700">
                         <span className="inline-block w-8 h-8 bg-indigo-600 rounded-full mr-2 animate-pulse" />
-                        Rayan Realty
+                        Rayan Immobilier
                     </Link>
                     <div className="flex gap-6 items-center text-lg font-medium">
                         <Link href="/" className="hover:text-indigo-600 transition">Home</Link>
@@ -47,7 +47,7 @@ export default function Layout({ children }) {
                 transition={{ delay: 0.5, duration: 1 }}
                 className="bg-white/80 backdrop-blur py-6 mt-12 text-center text-gray-500 text-sm shadow-inner"
             >
-                &copy; {new Date().getFullYear()} Rayan Realty. All rights reserved.
+                &copy; {new Date().getFullYear()} Rayan Immobilier. All rights reserved.
             </motion.footer>
         </div>
     );

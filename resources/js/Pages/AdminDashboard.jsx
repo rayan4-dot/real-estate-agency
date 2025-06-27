@@ -3,18 +3,22 @@ import { usePage, Link, router } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 
-const SIDEBAR_LINKS = [
-    { name: 'Overview', href: '/admin' },
+const ADMIN_LINKS = [
     { name: 'Users', href: '/users' },
     { name: 'Properties', href: '/properties' },
+    { name: 'Categories', href: '/categories' },
+    { name: 'Photos', href: '/photos' },
     { name: 'Blog Posts', href: '/blog-posts' },
-    { name: 'Favorites', href: '/favorites' },
+    { name: 'Appointments', href: '/appointments' },
+    { name: 'Contact Requests', href: '/contact-requests' },
+    { name: 'Property Submissions', href: '/property-submissions' },
+    { name: 'Roles', href: '/roles' },
 ];
 
 export default function AdminDashboard() {
     const { auth } = usePage().props;
+    const isAdmin = auth?.roles?.includes('admin');
     const user = auth?.user;
-    const isAdmin = user && user.roles && user.roles.includes('admin');
 
     const [stats, setStats] = useState({ users: 0, properties: 0, blogPosts: 0 });
     const [loading, setLoading] = useState(true);
@@ -67,7 +71,7 @@ export default function AdminDashboard() {
             <aside className="w-64 bg-indigo-800 text-white flex flex-col py-8 px-4 sticky top-0 min-h-screen shadow-xl">
                 <div className="text-2xl font-extrabold mb-10 text-center tracking-wide">Admin Panel</div>
                 <nav className="flex flex-col gap-4">
-                    {SIDEBAR_LINKS.map(link => (
+                    {ADMIN_LINKS.map(link => (
                         <Link
                             key={link.href}
                             href={link.href}
