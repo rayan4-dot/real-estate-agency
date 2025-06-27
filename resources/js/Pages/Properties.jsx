@@ -25,6 +25,7 @@ export default function Properties() {
     const [error, setError] = useState(null);
     const [favoriteStates, setFavoriteStates] = useState({});
     const [favoriteLoading, setFavoriteLoading] = useState({});
+    const [filterErrors, setFilterErrors] = useState({});
 
     useEffect(() => {
         fetchProperties()
@@ -41,6 +42,47 @@ export default function Properties() {
             .catch(() => setError('Failed to load properties.'))
             .finally(() => setLoading(false));
     }, [auth]);
+
+    const validateFilters = (newFilters) => {
+        const errors = {};
+        
+        // Validate minimum price
+        if (newFilters.min !== '') {
+            const minPrice = Number(newFilters.min);
+            if (minPrice < 1) {
+                errors.min = 'Minimum price must be at least 1';
+            }
+        }
+        
+        // Validate maximum price
+        if (newFilters.max !== '') {
+            const maxPrice = Number(newFilters.max);
+            if (maxPrice < 1) {
+                errors.max = 'Maximum price must be at least 1';
+            }
+        }
+        
+        // Validate min vs max
+        if (newFilters.min !== '' && newFilters.max !== '') {
+            const minPrice = Number(newFilters.min);
+            const maxPrice = Number(newFilters.max);
+            if (minPrice > maxPrice) {
+                errors.min = 'Minimum price cannot be greater than maximum price';
+                errors.max = 'Maximum price cannot be less than minimum price';
+            }
+        }
+        
+        return errors;
+    };
+
+    const handleFilterChange = (field, value) => {
+        const newFilters = { ...filters, [field]: value };
+        setFilters(newFilters);
+        
+        // Validate filters
+        const errors = validateFilters(newFilters);
+        setFilterErrors(errors);
+    };
 
     const checkFavoriteStatus = async (propertyId) => {
         try {
@@ -79,28 +121,71 @@ export default function Properties() {
         }
     };
 
-    const filtered = Array.isArray(properties) ? properties.filter(p =>
-        (!filters.city || p.city?.toLowerCase().includes(filters.city.toLowerCase())) &&
-        (!filters.type || p.type === filters.type) &&
-        (!filters.min || p.price >= Number(filters.min)) &&
-        (!filters.max || p.price <= Number(filters.max))
-    ) : [];
+    const filtered = Array.isArray(properties) ? properties.filter(p => {
+        // Only apply price filters if there are no validation errors
+        const hasPriceErrors = filterErrors.min || filterErrors.max;
+        
+        return (
+            (!filters.city || p.city?.toLowerCase().includes(filters.city.toLowerCase())) &&
+            (!filters.type || p.type === filters.type) &&
+            (!hasPriceErrors && !filters.min || p.price >= Number(filters.min)) &&
+            (!hasPriceErrors && !filters.max || p.price <= Number(filters.max))
+        );
+    }) : [];
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-white py-10 px-4">
             <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }} className="max-w-6xl mx-auto">
                 <h1 className="text-4xl font-bold mb-8 text-indigo-800 text-center">All Properties</h1>
                 <div className="flex flex-wrap gap-4 mb-8 justify-center">
-                    <input type="text" placeholder="City" className="px-4 py-2 rounded border" value={filters.city} onChange={e => setFilters(f => ({ ...f, city: e.target.value }))} />
-                    <select className="px-4 py-2 rounded border" value={filters.type} onChange={e => setFilters(f => ({ ...f, type: e.target.value }))}>
+                    <input 
+                        type="text" 
+                        placeholder="City" 
+                        className="px-4 py-2 rounded border" 
+                        value={filters.city} 
+                        onChange={e => handleFilterChange('city', e.target.value)} 
+                    />
+                    <select 
+                        className="px-4 py-2 rounded border" 
+                        value={filters.type} 
+                        onChange={e => handleFilterChange('type', e.target.value)}
+                    >
                         <option value="">All Types</option>
                         <option value="house">House</option>
                         <option value="apartment">Apartment</option>
                         <option value="land">Land</option>
                         <option value="commercial">Commercial</option>
                     </select>
-                    <input type="number" placeholder="Min Price" className="px-4 py-2 rounded border" value={filters.min} onChange={e => setFilters(f => ({ ...f, min: e.target.value }))} />
-                    <input type="number" placeholder="Max Price" className="px-4 py-2 rounded border" value={filters.max} onChange={e => setFilters(f => ({ ...f, max: e.target.value }))} />
+                    <div className="relative">
+                        <input 
+                            type="number" 
+                            placeholder="Min Price" 
+                            min="1"
+                            className={`px-4 py-2 rounded border ${filterErrors.min ? 'border-red-500' : ''}`}
+                            value={filters.min} 
+                            onChange={e => handleFilterChange('min', e.target.value)} 
+                        />
+                        {filterErrors.min && (
+                            <div className="absolute top-full left-0 text-red-500 text-xs mt-1 whitespace-nowrap">
+                                {filterErrors.min}
+                            </div>
+                        )}
+                    </div>
+                    <div className="relative">
+                        <input 
+                            type="number" 
+                            placeholder="Max Price" 
+                            min="1"
+                            className={`px-4 py-2 rounded border ${filterErrors.max ? 'border-red-500' : ''}`}
+                            value={filters.max} 
+                            onChange={e => handleFilterChange('max', e.target.value)} 
+                        />
+                        {filterErrors.max && (
+                            <div className="absolute top-full left-0 text-red-500 text-xs mt-1 whitespace-nowrap">
+                                {filterErrors.max}
+                            </div>
+                        )}
+                    </div>
                 </div>
                 {loading ? (
                     <div className="flex justify-center items-center h-40">

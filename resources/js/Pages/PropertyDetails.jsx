@@ -197,7 +197,9 @@ export default function PropertyDetails() {
                     <p className="text-lg text-gray-700 mb-8 leading-relaxed">{property.description}</p>
                     
                     <div className="flex gap-4 mt-8">
-                        <button onClick={() => setShowAppointmentModal(true)} className="px-6 py-3 bg-indigo-600 text-white rounded-full font-semibold hover:bg-indigo-700 transition">Book Appointment</button>
+                        {property.status === 'available' && (
+                            <button onClick={() => setShowAppointmentModal(true)} className="px-6 py-3 bg-indigo-600 text-white rounded-full font-semibold hover:bg-indigo-700 transition">Book Appointment</button>
+                        )}
                         <button 
                             onClick={handleFavoriteToggle}
                             disabled={favoriteLoading}
