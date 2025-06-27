@@ -16,6 +16,7 @@ export default function AdminProperties() {
     });
     const [formError, setFormError] = useState(null);
     const [isEdit, setIsEdit] = useState(false);
+    const [image, setImage] = useState(null);
 
     const fetchProperties = () => {
         setLoading(true);
@@ -61,25 +62,38 @@ export default function AdminProperties() {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        setImage(file);
+    };
+
     const handleFormSubmit = (e) => {
         e.preventDefault();
         setFormError(null);
-        const payload = {
-            title: form.title,
-            city: form.city,
-            price: form.price,
-            status: form.status,
-            type: form.type,
-        };
+        const formData = new FormData();
+        formData.append('title', form.title);
+        formData.append('city', form.city);
+        formData.append('price', form.price);
+        formData.append('status', form.status);
+        formData.append('type', form.type);
+        if (image) {
+            formData.append('image', image);
+        }
         if (isEdit) {
-            axios.put(`/api/properties/${form.id}`, payload, { withCredentials: true })
+            axios.post(`/api/properties/${form.id}?_method=PUT`, formData, {
+                withCredentials: true,
+                headers: { 'Content-Type': 'multipart/form-data' },
+            })
                 .then(() => {
                     setShowForm(false);
                     fetchProperties();
                 })
                 .catch(err => setFormError('Failed to update property.'));
         } else {
-            axios.post('/api/properties', payload, { withCredentials: true })
+            axios.post('/api/properties', formData, {
+                withCredentials: true,
+                headers: { 'Content-Type': 'multipart/form-data' },
+            })
                 .then(() => {
                     setShowForm(false);
                     fetchProperties();
@@ -124,6 +138,19 @@ export default function AdminProperties() {
                             <option value="studio">Studio</option>
                             <option value="villa">Villa</option>
                         </select>
+                    </div>
+                    <div className="mb-2">
+                        <label className="block mb-1">Image</label>
+                        <input type="file" accept="image/*" onChange={handleImageChange} className="w-full border rounded px-3 py-2" />
+                        {image && (
+                            <div className="mt-2">
+                                <img
+                                    src={URL.createObjectURL(image)}
+                                    alt="preview"
+                                    className="w-32 h-32 object-cover border rounded"
+                                />
+                            </div>
+                        )}
                     </div>
                     <div className="flex gap-4 mt-4">
                         <button type="submit" className="px-6 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">{isEdit ? 'Update' : 'Add'}</button>

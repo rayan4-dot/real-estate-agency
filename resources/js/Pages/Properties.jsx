@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import axios from 'axios';
+import { Link } from '@inertiajs/react';
 
 const fetchProperties = async () => {
     try {
@@ -60,28 +61,29 @@ export default function Properties() {
             ) : filtered.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
                     {filtered.map((property, idx) => (
-                        <motion.div
-                            key={property.id}
-                            className="bg-white rounded-xl shadow-lg overflow-hidden hover:scale-105 hover:shadow-2xl transition transform duration-300 flex flex-col"
-                            initial={{ opacity: 0, y: 40 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: idx * 0.1, duration: 0.6 }}
-                        >
-                            <img
-                                src={property.photo_url || `https://source.unsplash.com/600x400/?house,home,real-estate&sig=${property.id}`}
-                                alt={property.title}
-                                className="h-48 w-full object-cover"
-                            />
-                            <div className="p-6 flex-1 flex flex-col">
-                                <h3 className="text-xl font-semibold mb-2 text-indigo-700">{property.title}</h3>
-                                <p className="text-gray-600 mb-4 flex-1">{property.description?.slice(0, 80) || 'No description.'}...</p>
-                                <div className="flex items-center justify-between mt-auto">
-                                    <span className="text-lg font-bold text-indigo-600">${property.price?.toLocaleString() || 'N/A'}</span>
-                                    <span className="text-sm text-gray-500">{property.city}</span>
+                        <Link key={property.id} href={`/properties/${property.id}`} className="block">
+                            <motion.div
+                                className="bg-white rounded-xl shadow-lg overflow-hidden hover:scale-105 hover:shadow-2xl transition transform duration-300 flex flex-col"
+                                initial={{ opacity: 0, y: 40 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: idx * 0.1, duration: 0.6 }}
+                            >
+                                <img
+                                    src={property.photos && property.photos.length > 0 ? property.photos[0].url : `https://source.unsplash.com/600x400/?house,home,real-estate&sig=${property.id}`}
+                                    alt={property.title}
+                                    className="h-48 w-full object-cover"
+                                />
+                                <div className="p-6 flex-1 flex flex-col">
+                                    <h3 className="text-xl font-semibold mb-2 text-indigo-700">{property.title}</h3>
+                                    <p className="text-gray-600 mb-4 flex-1">{property.description?.slice(0, 80) || 'No description.'}...</p>
+                                    <div className="flex items-center justify-between mt-auto">
+                                        <span className="text-lg font-bold text-indigo-600">${property.price?.toLocaleString() || 'N/A'}</span>
+                                        <span className="text-sm text-gray-500">{property.city}</span>
+                                    </div>
                                 </div>
-                            </div>
-                        </motion.div>
+                            </motion.div>
+                        </Link>
                     ))}
                 </div>
             ) : (

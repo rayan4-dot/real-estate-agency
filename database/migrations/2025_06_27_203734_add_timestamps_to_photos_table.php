@@ -11,11 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('photos', function (Blueprint $table) {
-            $table->id();
-            $table->string('url', 255);
-            $table->unsignedBigInteger('property_id')->nullable();
-            $table->foreign('property_id')->references('id')->on('properties')->onDelete('cascade');
+        Schema::table('photos', function (Blueprint $table) {
             $table->timestamps();
         });
     }
@@ -25,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('photos');
+        Schema::table('photos', function (Blueprint $table) {
+            $table->dropTimestamps();
+        });
     }
 };
