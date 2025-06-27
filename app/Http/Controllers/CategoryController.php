@@ -10,51 +10,76 @@ class CategoryController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(function ($request, $next) {
-            $user = Auth::user();
-            if (!$user || !$user->hasAnyRole(['admin', 'agent'])) {
-                return response()->json(['message' => 'Forbidden'], 403);
-            }
-            return $next($request);
-        });
+        $this->middleware('auth:sanctum')->except(['index', 'show']);
     }
 
     public function index()
     {
-        return response()->json(Category::all());
+        $categories = Category::all();
+        return response()->json($categories);
     }
 
     public function show($id)
     {
-        $category = Category::findOrFail($id);
+        $category = Category::with('properties')->findOrFail($id);
         return response()->json($category);
     }
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:100|unique:categories,name',
+        if (!Auth::user()->hasAnyRole(['admin'])) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:255|unique:categories',
             'description' => 'nullable|string',
         ]);
-        $category = Category::create($validated);
+
+        $category = Category::create([
+            'name' => $request->name,
+            'description' => $request->description,
+        ]);
+
         return response()->json($category, 201);
     }
 
     public function update(Request $request, $id)
     {
+        if (!Auth::user()->hasAnyRole(['admin'])) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $category = Category::findOrFail($id);
-        $validated = $request->validate([
-            'name' => 'required|string|max:100|unique:categories,name,' . $category->id,
+        
+        $request->validate([
+            'name' => 'required|string|max:255|unique:categories,name,' . $id,
             'description' => 'nullable|string',
         ]);
-        $category->update($validated);
+
+        $category->update([
+            'name' => $request->name,
+            'description' => $request->description,
+        ]);
+
         return response()->json($category);
     }
 
     public function destroy($id)
     {
+        if (!Auth::user()->hasAnyRole(['admin'])) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $category = Category::findOrFail($id);
+        
+        // Check if category has properties
+        if ($category->properties()->count() > 0) {
+            return response()->json(['message' => 'Cannot delete category with associated properties'], 422);
+        }
+        
         $category->delete();
-        return response()->json(null, 204);
+        
+        return response()->json(['message' => 'Category deleted successfully']);
     }
 } 

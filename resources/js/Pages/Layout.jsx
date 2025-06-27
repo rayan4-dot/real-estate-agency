@@ -21,6 +21,7 @@ export default function Layout({ children }) {
                     <div className="flex gap-6 items-center text-lg font-medium">
                         <Link href="/" className="hover:text-indigo-600 transition">Home</Link>
                         <Link href="/properties" className="hover:text-indigo-600 transition">Properties</Link>
+                        <Link href="/categories" className="hover:text-indigo-600 transition">Categories</Link>
                         <Link href="/favorites" className="hover:text-indigo-600 transition">Favorites</Link>
                         <Link href="/blog-posts" className="hover:text-indigo-600 transition">Blog</Link>
                         {auth?.user ? (

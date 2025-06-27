@@ -18,10 +18,12 @@ export default function AdminProperties() {
         price: '',
         status: 'available',
         type: 'house',
+        category_id: '',
     });
     const [formError, setFormError] = useState(null);
     const [isEdit, setIsEdit] = useState(false);
     const [images, setImages] = useState([]);
+    const [categories, setCategories] = useState([]);
 
     const fetchProperties = () => {
         setLoading(true);
@@ -31,8 +33,15 @@ export default function AdminProperties() {
             .finally(() => setLoading(false));
     };
 
+    const fetchCategories = () => {
+        axios.get('/api/categories', { withCredentials: true })
+            .then(res => setCategories(res.data))
+            .catch(() => console.error('Failed to fetch categories.'));
+    };
+
     useEffect(() => {
         fetchProperties();
+        fetchCategories();
     }, []);
 
     const handleDelete = (id) => {
@@ -45,16 +54,17 @@ export default function AdminProperties() {
     const handleEdit = (property) => {
         setForm({
             id: property.id,
-            title: property.title,
-            description: property.description,
-            surface: property.surface,
-            rooms: property.rooms,
-            bedrooms: property.bedrooms,
-            address: property.address,
-            city: property.city,
-            price: property.price,
-            status: property.status,
-            type: property.type,
+            title: property.title ?? '',
+            description: property.description ?? '',
+            surface: property.surface ?? '',
+            rooms: property.rooms ?? '',
+            bedrooms: property.bedrooms ?? '',
+            address: property.address ?? '',
+            city: property.city ?? '',
+            price: property.price ?? '',
+            status: property.status ?? 'available',
+            type: property.type ?? 'house',
+            category_id: property.category_id ?? '',
         });
         setIsEdit(true);
         setShowForm(true);
@@ -62,14 +72,29 @@ export default function AdminProperties() {
     };
 
     const handleAdd = () => {
-        setForm({ id: null, title: '', description: '', surface: '', rooms: '', bedrooms: '', address: '', city: '', price: '', status: 'available', type: 'house' });
+        setForm({ 
+            id: null, 
+            title: '', 
+            description: '', 
+            surface: '', 
+            rooms: '', 
+            bedrooms: '', 
+            address: '', 
+            city: '', 
+            price: '', 
+            status: 'available', 
+            type: 'house', 
+            category_id: '' 
+        });
         setIsEdit(false);
         setShowForm(true);
         setFormError(null);
+        setImages([]);
     };
 
     const handleFormChange = (e) => {
-        setForm({ ...form, [e.target.name]: e.target.value });
+        const value = e.target.value === '' ? '' : e.target.value;
+        setForm({ ...form, [e.target.name]: value });
     };
 
     const handleImageChange = (e) => {
@@ -80,20 +105,30 @@ export default function AdminProperties() {
     const handleFormSubmit = (e) => {
         e.preventDefault();
         setFormError(null);
+        
+        // Validate required fields
+        if (!form.title.trim()) {
+            setFormError('Title is required');
+            return;
+        }
+        
         const formData = new FormData();
-        formData.append('title', form.title);
-        formData.append('description', form.description);
-        formData.append('surface', form.surface);
-        formData.append('rooms', form.rooms);
-        formData.append('bedrooms', form.bedrooms);
-        formData.append('address', form.address);
-        formData.append('city', form.city);
-        formData.append('price', form.price);
+        formData.append('title', form.title.trim());
+        formData.append('description', form.description || '');
+        formData.append('surface', form.surface || '');
+        formData.append('rooms', form.rooms || '');
+        formData.append('bedrooms', form.bedrooms || '');
+        formData.append('address', form.address || '');
+        formData.append('city', form.city || '');
+        formData.append('price', form.price || '');
         formData.append('status', form.status);
         formData.append('type', form.type);
+        formData.append('category_id', form.category_id || '');
+        
         images.forEach((img, idx) => {
             formData.append('images[]', img);
         });
+        
         if (isEdit) {
             axios.post(`/api/properties/${form.id}?_method=PUT`, formData, {
                 withCredentials: true,
@@ -103,7 +138,13 @@ export default function AdminProperties() {
                     setShowForm(false);
                     fetchProperties();
                 })
-                .catch(err => setFormError('Failed to update property.'));
+                .catch(err => {
+                    if (err.response?.data?.message) {
+                        setFormError(err.response.data.message);
+                    } else {
+                        setFormError('Failed to update property.');
+                    }
+                });
         } else {
             axios.post('/api/properties', formData, {
                 withCredentials: true,
@@ -113,7 +154,13 @@ export default function AdminProperties() {
                     setShowForm(false);
                     fetchProperties();
                 })
-                .catch(err => setFormError('Failed to add property.'));
+                .catch(err => {
+                    if (err.response?.data?.message) {
+                        setFormError(err.response.data.message);
+                    } else {
+                        setFormError('Failed to add property.');
+                    }
+                });
         }
     };
 
@@ -172,8 +219,17 @@ export default function AdminProperties() {
                         <select name="type" value={form.type} onChange={handleFormChange} className="w-full border rounded px-3 py-2">
                             <option value="house">House</option>
                             <option value="apartment">Apartment</option>
-                            <option value="studio">Studio</option>
-                            <option value="villa">Villa</option>
+                            <option value="land">Land</option>
+                            <option value="commercial">Commercial</option>
+                        </select>
+                    </div>
+                    <div className="mb-2">
+                        <label className="block mb-1">Category</label>
+                        <select name="category_id" value={form.category_id} onChange={handleFormChange} className="w-full border rounded px-3 py-2">
+                            <option value="">Select Category</option>
+                            {categories.map(category => (
+                                <option key={category.id} value={category.id}>{category.name}</option>
+                            ))}
                         </select>
                     </div>
                     <div className="mb-2">

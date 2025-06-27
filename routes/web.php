@@ -113,6 +113,18 @@ Route::get('/admin/photos', function () {
     return Inertia::render('Admin/Photos');
 })->middleware(['auth', 'role:admin']);
 
+Route::get('/admin/categories', function () {
+    return Inertia::render('Admin/Categories');
+})->middleware(['auth', 'role:admin']);
+
+Route::get('/categories', function () {
+    return Inertia::render('Categories');
+})->name('categories');
+
+Route::get('/categories/{id}', function ($id) {
+    return Inertia::render('CategoryProperties', ['categoryId' => $id]);
+})->name('categories.show');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

@@ -4,17 +4,21 @@ import { motion } from 'framer-motion';
 import axios from 'axios';
 
 export default function PropertyDetails() {
-    const { id } = usePage().props;
+    const { id, auth } = usePage().props;
     const [property, setProperty] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [currentImg, setCurrentImg] = useState(0);
     const [showAppointmentModal, setShowAppointmentModal] = useState(false);
+    const [isFavorited, setIsFavorited] = useState(false);
+    const [favoriteLoading, setFavoriteLoading] = useState(false);
     const [appointmentForm, setAppointmentForm] = useState({
         name: '',
         email: '',
         phone: '',
         date: '',
-        time: ''
+        time: '',
+        message: ''
     });
     const [contactForm, setContactForm] = useState({
         name: '',
@@ -23,8 +27,69 @@ export default function PropertyDetails() {
     });
 
     useEffect(() => {
-        axios.get(`/api/properties/${id}`).then(res => setProperty(res.data)).finally(() => setLoading(false));
-    }, [id]);
+        axios.get(`/api/properties/${id}`)
+            .then(res => {
+                setProperty(res.data);
+                // Check if property is favorited by current user
+                if (auth?.user) {
+                    checkFavoriteStatus(res.data.id);
+                }
+            })
+            .catch(() => setError('Failed to load property.'))
+            .finally(() => setLoading(false));
+    }, [id, auth]);
+
+    const checkFavoriteStatus = async (propertyId) => {
+        try {
+            const res = await axios.get(`/api/favorite-properties/check/${propertyId}`, { withCredentials: true });
+            setIsFavorited(res.data.is_favorited);
+        } catch (error) {
+            console.error('Failed to check favorite status:', error);
+        }
+    };
+
+    const handleFavoriteToggle = async () => {
+        if (!auth?.user) {
+            // Redirect to login or show login modal
+            alert('Please log in to add favorites');
+            return;
+        }
+
+        setFavoriteLoading(true);
+        try {
+            console.log('Toggling favorite for property:', property.id, 'user:', auth.user.id, 'current state:', isFavorited);
+            if (isFavorited) {
+                // Remove from favorites
+                const response = await axios.delete(`/api/favorite-properties/${auth.user.id}/${property.id}`, { 
+                    withCredentials: true,
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    }
+                });
+                console.log('Remove response:', response.data);
+                setIsFavorited(false);
+            } else {
+                // Add to favorites
+                const response = await axios.post('/api/favorite-properties', { property_id: property.id }, { 
+                    withCredentials: true,
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    }
+                });
+                console.log('Add response:', response.data);
+                setIsFavorited(true);
+            }
+        } catch (error) {
+            console.error('Failed to toggle favorite:', error);
+            console.error('Error response:', error.response?.data);
+            console.error('Error status:', error.response?.status);
+            alert(`Failed to update favorites: ${error.response?.data?.message || error.message}`);
+        } finally {
+            setFavoriteLoading(false);
+        }
+    };
 
     const handleAppointmentSubmit = (e) => {
         e.preventDefault();
@@ -37,7 +102,7 @@ export default function PropertyDetails() {
         axios.post('/api/appointments', payload, { withCredentials: true })
             .then(() => {
                 setShowAppointmentModal(false);
-                setAppointmentForm({ name: '', email: '', phone: '', date: '', time: '' });
+                setAppointmentForm({ name: '', email: '', phone: '', date: '', time: '', message: '' });
                 alert('Appointment booked successfully!');
             })
             .catch(err => {
@@ -65,6 +130,9 @@ export default function PropertyDetails() {
     if (loading) {
         return <div className="flex justify-center items-center h-40"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div></div>;
     }
+    if (error) {
+        return <div className="text-center text-red-500 py-16">{error}</div>;
+    }
     if (!property) {
         return <div className="text-center text-gray-500 py-16">Property not found.</div>;
     }
@@ -72,7 +140,7 @@ export default function PropertyDetails() {
     // Carousel logic
     const images = property.photos && property.photos.length > 0
         ? property.photos.map(photo => photo.url)
-        : [`https://source.unsplash.com/900x500/?house,home,real-estate&sig=${property.id}`];
+        : [`https://source.unsplash.com/800x600/?house,home,real-estate&sig=${property.id}`];
     const prevImg = () => setCurrentImg((prev) => (prev === 0 ? images.length - 1 : prev - 1));
     const nextImg = () => setCurrentImg((prev) => (prev === images.length - 1 ? 0 : prev + 1));
 
@@ -110,6 +178,9 @@ export default function PropertyDetails() {
                         <span className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm font-semibold">{property.city}</span>
                         <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold capitalize">{property.type}</span>
                         <span className={`px-3 py-1 rounded-full text-sm font-semibold ${property.status === 'available' ? 'bg-blue-100 text-blue-700' : property.status === 'sold' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>{property.status}</span>
+                        {property.category && (
+                            <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm font-semibold">{property.category.name}</span>
+                        )}
                     </div>
                     
                     <h1 className="text-4xl font-extrabold text-indigo-800 mb-2 tracking-tight">{property.title}</h1>
@@ -127,7 +198,24 @@ export default function PropertyDetails() {
                     
                     <div className="flex gap-4 mt-8">
                         <button onClick={() => setShowAppointmentModal(true)} className="px-6 py-3 bg-indigo-600 text-white rounded-full font-semibold hover:bg-indigo-700 transition">Book Appointment</button>
-                        <button className="px-6 py-3 bg-white border border-indigo-600 text-indigo-700 rounded-full font-semibold hover:bg-indigo-50 transition">Add to Favorites</button>
+                        <button 
+                            onClick={handleFavoriteToggle}
+                            disabled={favoriteLoading}
+                            className={`px-6 py-3 rounded-full font-semibold transition flex items-center gap-2 ${
+                                isFavorited 
+                                    ? 'bg-red-600 text-white hover:bg-red-700' 
+                                    : 'bg-white border border-indigo-600 text-indigo-700 hover:bg-indigo-50'
+                            }`}
+                        >
+                            {favoriteLoading ? (
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                            ) : (
+                                <svg className={`w-5 h-5 ${isFavorited ? 'fill-current' : 'fill-none'}`} stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                </svg>
+                            )}
+                            {isFavorited ? 'Remove from Favorites' : 'Add to Favorites'}
+                        </button>
                     </div>
                 </motion.div>
 

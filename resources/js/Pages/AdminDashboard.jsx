@@ -4,15 +4,15 @@ import { motion } from 'framer-motion';
 import axios from 'axios';
 
 const ADMIN_LINKS = [
-    { name: 'Users', href: '/users' },
-    { name: 'Properties', href: '/properties' },
-    { name: 'Categories', href: '/categories' },
-    { name: 'Photos', href: '/photos' },
-    { name: 'Blog Posts', href: '/blog-posts' },
-    { name: 'Appointments', href: '/appointments' },
-    { name: 'Contact Requests', href: '/contact-requests' },
-    { name: 'Property Submissions', href: '/property-submissions' },
-    { name: 'Roles', href: '/roles' },
+    { name: 'Users', href: '/admin/users' },
+    { name: 'Properties', href: '/admin/properties' },
+    { name: 'Categories', href: '/admin/categories' },
+    { name: 'Photos', href: '/admin/photos' },
+    { name: 'Blog Posts', href: '/admin/blog-posts' },
+    { name: 'Appointments', href: '/admin/appointments' },
+    { name: 'Contact Requests', href: '/admin/contact-requests' },
+    { name: 'Property Submissions', href: '/admin/property-submissions' },
+    { name: 'Roles', href: '/admin/roles' },
 ];
 
 export default function AdminDashboard() {

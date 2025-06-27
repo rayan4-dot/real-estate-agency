@@ -35,6 +35,8 @@ Route::middleware('auth:sanctum')->group(function () {
 // --- PUBLIC ENDPOINTS ---
 Route::get('properties', [PropertyController::class, 'index']);
 Route::get('properties/{property}', [PropertyController::class, 'show']);
+Route::get('categories', [CategoryController::class, 'index']);
+Route::get('categories/{category}', [CategoryController::class, 'show']);
 Route::get('blog-posts', [BlogPostController::class, 'index']);
 Route::get('blog-posts/{blog_post}', [BlogPostController::class, 'show']);
 
@@ -58,16 +60,18 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::apiResource('property-submissions', PropertySubmissionController::class);
     });
 
+    // All authenticated users can manage favorites
+    Route::get('favorite-properties', [FavoritePropertyController::class, 'index']);
+    Route::post('favorite-properties', [FavoritePropertyController::class, 'store']);
+    Route::get('favorite-properties/check/{property_id}', [FavoritePropertyController::class, 'check']);
+    Route::get('favorite-properties/{user_id}/{property_id}', [FavoritePropertyController::class, 'show']);
+    Route::put('favorite-properties/{user_id}/{property_id}', [FavoritePropertyController::class, 'update']);
+    Route::delete('favorite-properties/{user_id}/{property_id}', [FavoritePropertyController::class, 'destroy']);
+
     // Client-only
     Route::middleware('role:client|admin')->group(function () {
         Route::apiResource('appointments', AppointmentController::class);
         Route::apiResource('contact-requests', ContactRequestController::class);
-        // FavoriteProperty: custom routes for composite keys
-        Route::get('favorite-properties', [FavoritePropertyController::class, 'index']);
-        Route::post('favorite-properties', [FavoritePropertyController::class, 'store']);
-        Route::get('favorite-properties/{user_id}/{property_id}', [FavoritePropertyController::class, 'show']);
-        Route::put('favorite-properties/{user_id}/{property_id}', [FavoritePropertyController::class, 'update']);
-        Route::delete('favorite-properties/{user_id}/{property_id}', [FavoritePropertyController::class, 'destroy']);
     });
 });
 

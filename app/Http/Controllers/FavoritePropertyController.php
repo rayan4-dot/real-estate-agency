@@ -10,16 +10,7 @@ class FavoritePropertyController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(function ($request, $next) {
-            $user = Auth::user();
-            $action = $request->route()->getActionMethod();
-            if ($action === 'index') {
-                if (!$user || !$user->hasAnyRole(['admin', 'agent'])) {
-                    return response()->json(['message' => 'Forbidden'], 403);
-                }
-            }
-            return $next($request);
-        });
+        $this->middleware('auth:sanctum');
     }
 
     /**
@@ -27,7 +18,10 @@ class FavoritePropertyController extends Controller
      */
     public function index()
     {
-        return response()->json(FavoriteProperty::all());
+        $favorites = FavoriteProperty::where('user_id', Auth::id())
+            ->with(['property.photos', 'property.category'])
+            ->get();
+        return response()->json($favorites);
     }
 
     /**
@@ -35,12 +29,25 @@ class FavoritePropertyController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'user_id' => 'required|exists:users,id',
+        $request->validate([
             'property_id' => 'required|exists:properties,id',
         ]);
-        $favorite = FavoriteProperty::create($validated);
-        return response()->json($favorite, 201);
+
+        // Check if already favorited
+        $existing = FavoriteProperty::where('user_id', Auth::id())
+            ->where('property_id', $request->property_id)
+            ->first();
+
+        if ($existing) {
+            return response()->json(['message' => 'Property already in favorites'], 422);
+        }
+
+        $favorite = FavoriteProperty::create([
+            'user_id' => Auth::id(),
+            'property_id' => $request->property_id,
+        ]);
+
+        return response()->json($favorite->load(['property.photos', 'property.category']), 201);
     }
 
     /**
@@ -48,7 +55,15 @@ class FavoritePropertyController extends Controller
      */
     public function show($user_id, $property_id)
     {
-        $favorite = FavoriteProperty::where('user_id', $user_id)->where('property_id', $property_id)->firstOrFail();
+        $favorite = FavoriteProperty::where('user_id', Auth::id())
+            ->where('property_id', $property_id)
+            ->with(['property.photos', 'property.category'])
+            ->first();
+
+        if (!$favorite) {
+            return response()->json(['message' => 'Favorite not found'], 404);
+        }
+
         return response()->json($favorite);
     }
 
@@ -57,13 +72,19 @@ class FavoritePropertyController extends Controller
      */
     public function update(Request $request, $user_id, $property_id)
     {
-        $favorite = FavoriteProperty::where('user_id', $user_id)->where('property_id', $property_id)->firstOrFail();
-        $validated = $request->validate([
-            'user_id' => 'required|exists:users,id',
+        $favorite = FavoriteProperty::where('user_id', Auth::id())
+            ->where('property_id', $property_id)
+            ->firstOrFail();
+
+        $request->validate([
             'property_id' => 'required|exists:properties,id',
         ]);
-        $favorite->update($validated);
-        return response()->json($favorite);
+
+        $favorite->update([
+            'property_id' => $request->property_id,
+        ]);
+
+        return response()->json($favorite->load(['property.photos', 'property.category']));
     }
 
     /**
@@ -71,8 +92,24 @@ class FavoritePropertyController extends Controller
      */
     public function destroy($user_id, $property_id)
     {
-        $favorite = FavoriteProperty::where('user_id', $user_id)->where('property_id', $property_id)->firstOrFail();
+        $favorite = FavoriteProperty::where('user_id', Auth::id())
+            ->where('property_id', $property_id)
+            ->firstOrFail();
+
         $favorite->delete();
-        return response()->json(null, 204);
+        
+        return response()->json(['message' => 'Favorite removed successfully']);
+    }
+
+    /**
+     * Check if a property is favorited by the current user.
+     */
+    public function check($property_id)
+    {
+        $isFavorited = FavoriteProperty::where('user_id', Auth::id())
+            ->where('property_id', $property_id)
+            ->exists();
+
+        return response()->json(['is_favorited' => $isFavorited]);
     }
 }
