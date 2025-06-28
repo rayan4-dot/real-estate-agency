@@ -16,6 +16,7 @@ return new class extends Migration
             $table->id();
             $table->string('name', 100);
             $table->string('email', 100);
+            $table->string('subject', 255);
             $table->text('message');
             $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->unsignedBigInteger('property_id')->nullable();

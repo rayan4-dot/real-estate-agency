@@ -127,7 +127,7 @@ export default function AdminProperties() {
         formData.append('category_id', form.category_id || '');
         
         images.forEach((img, idx) => {
-            formData.append('images[]', img);
+            formData.append('images', img);
         });
         
         if (isEdit) {
@@ -291,8 +291,8 @@ export default function AdminProperties() {
                                 >
                                     <option value="house">House</option>
                                     <option value="apartment">Apartment</option>
-                                    <option value="villa">Villa</option>
-                                    <option value="office">Office</option>
+                                    <option value="land">Land</option>
+                                    <option value="commercial">Commercial</option>
                                 </select>
                             </div>
                         </div>
