@@ -46,17 +46,20 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:admin')->group(function () {
         Route::apiResource('users', UserController::class);
         Route::apiResource('roles', RoleController::class);
-        Route::apiResource('categories', CategoryController::class);
         Route::apiResource('photos', PhotoController::class);
     });
 
-    // Agent-only
+    // Agent and Admin can manage properties
     Route::middleware('role:agent|admin')->group(function () {
         Route::apiResource('properties', PropertyController::class)->except(['index', 'show']);
+    });
+
+    // Agent and Admin can manage blog posts
+    Route::middleware('role:agent|admin')->group(function () {
         Route::apiResource('blog-posts', BlogPostController::class)->except(['index', 'show']);
     });
 
-    // Propriétaire-only
+    // Propriétaire and Admin can manage property submissions
     Route::middleware('role:proprietaire|admin')->group(function () {
         Route::apiResource('property-submissions', PropertySubmissionController::class);
     });
@@ -69,9 +72,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('favorite-properties/{user_id}/{property_id}', [FavoritePropertyController::class, 'update']);
     Route::delete('favorite-properties/{user_id}/{property_id}', [FavoritePropertyController::class, 'destroy']);
 
-    // Client-only
+    // Client and Admin can manage appointments
     Route::middleware('role:client|admin')->group(function () {
         Route::apiResource('appointments', AppointmentController::class);
+    });
+
+    // Client and Admin can manage contact requests
+    Route::middleware('role:client|admin')->group(function () {
         Route::apiResource('contact-requests', ContactRequestController::class);
     });
 });

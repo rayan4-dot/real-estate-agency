@@ -8,26 +8,12 @@ use Illuminate\Support\Facades\Auth;
 
 class ContactRequestController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(function ($request, $next) {
-            $user = Auth::user();
-            $action = $request->route()->getActionMethod();
-            if (in_array($action, ['index', 'update', 'destroy'])) {
-                if (!$user || !$user->hasAnyRole(['admin', 'agent'])) {
-                    return response()->json(['message' => 'Forbidden'], 403);
-                }
-            }
-            return $next($request);
-        });
-    }
-
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return response()->json(ContactRequest::all());
+        return response()->json(ContactRequest::with('user')->get());
     }
 
     /**
@@ -38,6 +24,7 @@ class ContactRequestController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:100',
             'email' => 'required|email|max:100',
+            'subject' => 'required|string|max:255',
             'message' => 'required|string',
             'created_at' => 'nullable|date',
             'property_id' => 'nullable|exists:properties,id',
@@ -52,7 +39,7 @@ class ContactRequestController extends Controller
      */
     public function show($id)
     {
-        $contactRequest = ContactRequest::findOrFail($id);
+        $contactRequest = ContactRequest::with('user')->findOrFail($id);
         return response()->json($contactRequest);
     }
 
@@ -65,6 +52,7 @@ class ContactRequestController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:100',
             'email' => 'required|email|max:100',
+            'subject' => 'required|string|max:255',
             'message' => 'required|string',
             'created_at' => 'nullable|date',
             'property_id' => 'nullable|exists:properties,id',

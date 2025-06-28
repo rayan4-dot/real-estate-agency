@@ -45,7 +45,7 @@ class PropertyController extends Controller
             'city' => 'nullable|string',
             'price' => 'nullable|numeric',
             'status' => 'required|in:available,sold,rented',
-            'type' => 'required|in:house,apartment,land,commercial',
+            'type' => 'required|in:house,apartment,land,commercial,villa,office',
             'category_id' => 'nullable|exists:categories,id',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
@@ -67,14 +67,37 @@ class PropertyController extends Controller
             ]);
 
             if ($request->hasFile('images')) {
-                foreach ($request->file('images') as $image) {
-                    $path = $image->store('properties', 'public');
-                    $url = asset('storage/' . $path);
-                    Photo::create([
-                        'property_id' => $property->id,
-                        'url' => $url,
-                    ]);
+                $images = $request->file('images');
+                // Convert single file to array if needed
+                if (!is_array($images)) {
+                    $images = [$images];
                 }
+                
+                Log::info('Images found in request: ' . count($images));
+                try {
+                    foreach ($images as $index => $image) {
+                        Log::info('Processing image ' . $index . ': ' . $image->getClientOriginalName());
+                        if ($image->isValid()) {
+                            $path = $image->store('properties', 'public');
+                            $url = asset('storage/' . $path);
+                            Log::info('Image stored at: ' . $path . ' with URL: ' . $url);
+                            
+                            $photo = Photo::create([
+                                'property_id' => $property->id,
+                                'url' => $url,
+                            ]);
+                            Log::info('Photo created with ID: ' . $photo->id);
+                        } else {
+                            Log::warning('Invalid image file at index: ' . $index);
+                        }
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Image upload failed: ' . $e->getMessage());
+                    Log::error('Stack trace: ' . $e->getTraceAsString());
+                    // Don't fail the entire request if image upload fails
+                }
+            } else {
+                Log::info('No images found in request');
             }
 
             return response()->json($property->load(['photos', 'category']), 201);
@@ -102,7 +125,7 @@ class PropertyController extends Controller
             'city' => 'nullable|string',
             'price' => 'nullable|numeric',
             'status' => 'required|in:available,sold,rented',
-            'type' => 'required|in:house,apartment,land,commercial',
+            'type' => 'required|in:house,apartment,land,commercial,villa,office',
             'category_id' => 'nullable|exists:categories,id',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
@@ -123,14 +146,37 @@ class PropertyController extends Controller
             ]);
 
             if ($request->hasFile('images')) {
-                foreach ($request->file('images') as $image) {
-                    $path = $image->store('properties', 'public');
-                    $url = asset('storage/' . $path);
-                    Photo::create([
-                        'property_id' => $property->id,
-                        'url' => $url,
-                    ]);
+                $images = $request->file('images');
+                // Convert single file to array if needed
+                if (!is_array($images)) {
+                    $images = [$images];
                 }
+                
+                Log::info('Images found in request: ' . count($images));
+                try {
+                    foreach ($images as $index => $image) {
+                        Log::info('Processing image ' . $index . ': ' . $image->getClientOriginalName());
+                        if ($image->isValid()) {
+                            $path = $image->store('properties', 'public');
+                            $url = asset('storage/' . $path);
+                            Log::info('Image stored at: ' . $path . ' with URL: ' . $url);
+                            
+                            $photo = Photo::create([
+                                'property_id' => $property->id,
+                                'url' => $url,
+                            ]);
+                            Log::info('Photo created with ID: ' . $photo->id);
+                        } else {
+                            Log::warning('Invalid image file at index: ' . $index);
+                        }
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Image upload failed: ' . $e->getMessage());
+                    Log::error('Stack trace: ' . $e->getTraceAsString());
+                    // Don't fail the entire request if image upload fails
+                }
+            } else {
+                Log::info('No images found in request');
             }
 
             return response()->json($property->load(['photos', 'category']));
