@@ -16,13 +16,13 @@ return new class extends Migration
             $table->id();
             $table->string('name', 100);
             $table->string('email', 100);
-            $table->string('subject', 255);
+            $table->string('subject', 255)->default('General Inquiry');
             $table->text('message');
-            $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->unsignedBigInteger('property_id')->nullable();
             $table->unsignedBigInteger('user_id')->nullable();
-            $table->foreign('property_id')->references('id')->on('properties')->onDelete('cascade');
+            $table->foreign('property_id')->references('id')->on('properties')->onDelete('set null');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
+            $table->timestamps();
         });
     }
 

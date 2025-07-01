@@ -56,12 +56,23 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // Roles
         $client = Role::firstOrCreate(['name' => 'client']);
+        $user = Role::firstOrCreate(['name' => 'user']);
         $owner = Role::firstOrCreate(['name' => 'proprietaire']);
         $agent = Role::firstOrCreate(['name' => 'agent']);
         $admin = Role::firstOrCreate(['name' => 'admin']);
 
         // Assign permissions to roles
         $client->syncPermissions([
+            'search properties',
+            'view property',
+            'send contact request',
+            'request appointment',
+            'add favorite',
+            'read blog',
+            'register',
+            'login',
+        ]);
+        $user->syncPermissions([
             'search properties',
             'view property',
             'send contact request',

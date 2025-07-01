@@ -18,9 +18,9 @@ return new class extends Migration
             $table->string('owner_email', 100)->nullable();
             $table->text('property_details')->nullable();
             $table->enum('status', ['pending', 'validated', 'rejected'])->default('pending');
-            $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->unsignedBigInteger('property_id')->nullable();
             $table->foreign('property_id')->references('id')->on('properties')->onDelete('set null');
+            $table->timestamps();
         });
     }
 

@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('contact_requests', function (Blueprint $table) {
-            $table->string('subject', 255)->after('email')->default('General Inquiry');
-        });
+        // Schema::table('contact_requests', function (Blueprint $table) {
+        //     $table->string('subject')->default('General Inquiry')->after('email');
+        // });
     }
 
     /**
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('contact_requests', function (Blueprint $table) {
-            $table->dropColumn('subject');
-        });
+        // Schema::table('contact_requests', function (Blueprint $table) {
+        //     $table->dropColumn('subject');
+        // });
     }
 };

@@ -18,7 +18,10 @@ return new class extends Migration
             $table->string('email', 100)->unique();
             $table->string('password', 255);
             $table->string('phone', 20)->nullable();
-            $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
+            // $table->dateTime('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
+            // $table->dateTime('updated_at')->nullable();
+            $table->rememberToken();
+            $table->timestamps();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

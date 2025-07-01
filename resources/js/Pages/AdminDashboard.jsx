@@ -55,11 +55,22 @@ export default function AdminDashboard() {
     }, []);
 
     useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                // Ensure CSRF cookie is set before making authenticated requests
+                await axios.get('/sanctum/csrf-cookie');
+                
+                const res = await axios.get('/api/stats');
+                setStats(res.data);
+            } catch (err) {
+                setError('Failed to fetch stats.');
+            } finally {
+                setLoading(false);
+            }
+        };
+
         if (isAdmin) {
-            axios.get('/api/stats', { withCredentials: true })
-                .then(res => setStats(res.data))
-                .catch(() => setError('Failed to fetch stats.'))
-                .finally(() => setLoading(false));
+            fetchStats();
         } else {
             setLoading(false);
         }

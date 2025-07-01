@@ -15,15 +15,33 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
+        $this->call([
+            RolesAndPermissionsSeeder::class,
+            UserRoleSeeder::class,
+            AssignDefaultRolesSeeder::class,
+        ]);
+
+        // Create 3 admin users
+        $adminUsers = User::factory(3)->create();
+        foreach ($adminUsers as $user) {
+            $user->assignRole('admin');
+        }
+
+        // Create 7 regular users
+        $regularUsers = User::factory(7)->create();
+        foreach ($regularUsers as $user) {
+            $user->assignRole('user');
+        }
+
+        // Optionally, keep the test user as admin
         User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
-        ]);
+        ])->assignRole('admin');
 
         $this->call([
             CategorySeeder::class,
             PropertySeeder::class,
-            BlogPostSeeder::class,
             AppointmentSeeder::class,
             PropertySubmissionSeeder::class,
             ContactRequestSeeder::class,

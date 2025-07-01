@@ -12,7 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('photos', function (Blueprint $table) {
-            $table->timestamps();
+            // Schema::table('photos', function (Blueprint $table) {
+            //     $table->timestamp('created_at')->nullable();
+            //     $table->timestamp('updated_at')->nullable();
+            // });
         });
     }
 
@@ -22,7 +25,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('photos', function (Blueprint $table) {
-            $table->dropTimestamps();
+            // Schema::table('photos', function (Blueprint $table) {
+            //     $table->dropTimestamps();
+            // });
         });
     }
 };

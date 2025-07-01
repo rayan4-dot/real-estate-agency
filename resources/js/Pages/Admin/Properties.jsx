@@ -127,7 +127,7 @@ export default function AdminProperties() {
         formData.append('category_id', form.category_id || '');
         
         images.forEach((img, idx) => {
-            formData.append('images', img);
+            formData.append('images[]', img);
         });
         
         if (isEdit) {
